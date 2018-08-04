@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+        crossorigin="anonymous">
+    <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=MedievalSharp" rel="stylesheet">
+    <title>Rock!Paper!Scissors!Lizard!Spock!</title>
+</head>
+
+<body style="background-image:url(http://jllsly.com/wallpapers/xdark-brown-wood-wallpaper-Is-Cool-Wallpapers.jpg.pagespeed.ic.JR4TfXbjmi.jpg)">
+    <div class="container">
+        <br>
+        <div class="row rounded" style="color:lavenderblush;border-style:ridge;border-width:8px;border-color:lightgreen;height:150px;font-size:35px;font-weight:bold;font-family: 'MedievalSharp', cursive;margin:auto;">
+            <div style="margin:auto;">Welcome To</div>
+            <div style="margin:auto;">
+                <i class="far fa-hand-rock"></i>Rock&nbsp;
+                <i class="far fa-hand-paper"></i>Paper&nbsp;
+                <i class="far fa-hand-scissors"></i>Scissors&nbsp;
+                <i class="far fa-hand-lizard"></i>Lizard&nbsp;
+                <i class="far fa-hand-spock"></i>Spock&nbsp;ON STEROIDS!!!</div>
+        </div>
+        <h5 style="color:whitesmoke">There are currently&nbsp;
+            <span id="userOnline"></span>&nbsp;user(s) online.</h5>
+        <div class="row">
+            <div class="gamescreen col-lg-8 rounded" style="margin:22px;border-style:ridge;border-width:8px;border-color:lightgreen;height:500px;">
+                <div class="row">
+                    <div class="btn btn-warning btn-lg rounded dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                        style="margin:10px;margin-left:30px;">How To Play</div>
+                    <div class="dropdown-menu" style="padding-top:0;padding-bottom:0;">
+                        <img style="height:400px;width:400px;float:left;" src="https://res.cloudinary.com/teepublic/image/private/s--FmJZnCzA--/t_Preview/b_rgb:262c3a,c_limit,f_jpg,h_630,q_90,w_630/v1508274791/production/designs/1979789_1.jpg"/>
+                        <div style="height:400px;width:250px;float:left;border-style:double;border-width:5px;padding:20px;font-size:18px;">Prepare for the ultimate online battle of Rock, Paper, Scissors, Lizard, Spock! The game is just like rock, paper, scissors, except with the addition of Lizard and Spock, because everything is better when you add Lizard and Spock! Good luck!</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 rounded" style="margin:22px;border-style:ridge;border-width:8px;border-color:lightgreen;height:500px;">
+                <div class="row chatbox" style="height:400px;word-wrap:break-word;overflow-y:auto;padding:10px;">
+                </div>
+                <div class="form-group">
+                    <label for="comment" style="color:white">Comment:</label>
+                    <input type="text" class="form-control" id="comment"></input>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyC9-eOq79_bYPLhyasXl9xbhiS3zN4L6kA",
+            authDomain: "rpslk-348b6.firebaseapp.com",
+            databaseURL: "https://rpslk-348b6.firebaseio.com",
+            projectId: "rpslk-348b6",
+            storageBucket: "rpslk-348b6.appspot.com",
+            messagingSenderId: "643715383600"
+        };
+        firebase.initializeApp(config);
+        var database = firebase.database();
+
+        var connectionsRef = database.ref("/connections");
+
+        // '.info/connected' is a special location provided by Firebase that is updated every time
+        // the client's connection state changes.
+        // '.info/connected' is a boolean value, true if the client is connected and false if they are not.
+        var connectedRef = database.ref(".info/connected");
+
+        // When the client's connection state changes...
+        connectedRef.on("value", function (snap) {
+
+            // If they are connected..
+            if (snap.val()) {
+
+                // Add user to the connections list.
+                var con = connectionsRef.push(true);
+
+                // Remove user from the connection list when they disconnect.
+                con.onDisconnect().remove();
+            }
+        });
+
+        // When first loaded or when the connections list changes...
+        connectionsRef.on("value", function (snap) {
+
+            // Display the viewer count in the html.
+            // The number of online users is the number of children in the connections list.
+            $("#userOnline").text(snap.numChildren());
+        });
+        //enter comment
+        $("#comment").keyup(function (event) {
+            if (event.keyCode === 13) {
+                if ($(this).val().trim()) {
+                    database.ref().push({
+                        chat: $(this).val().trim(),
+                        timeStamp: moment().format("hh:mm a"),
+                    })
+
+                }
+                $("#comment").val("");
+            }
+        })
+
+        //upload comment
+        database.ref().on("child_added", function (snapshot) {
+            if (snapshot.val().chat) {
+                $(".chatbox").prepend("<div class='rounded' style='padding:10px;width:100%;color:white;height:auto;margin:none;margin-top:5px;border-style:solid;border-color:white;border-width:3px;'><h6>" + snapshot.val().chat + "</h6><div style='font-size:12px;margin-top:-5px;clear:both;'>" + snapshot.val().timeStamp + "</div></div>");
+            }
+        })
+    </script>
+</body>
+
+</html>
